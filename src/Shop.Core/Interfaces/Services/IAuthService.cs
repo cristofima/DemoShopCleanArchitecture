@@ -7,5 +7,6 @@ namespace Shop.Core.Interfaces.Services
     public interface IAuthService
     {
         Task<CreateUserResponse> SaveAsync(RegisterUserRequest registerUser);
+        Task<BaseCRUDResponse> LoginAsync(LoginRequest loginUser);
     }
 }

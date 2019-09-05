@@ -17,6 +17,25 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody]LoginRequest login)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await this._authService.LoginAsync(login);
+            if (!result.IsSuccess())
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+
+        [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody]RegisterUserRequest user)
         {

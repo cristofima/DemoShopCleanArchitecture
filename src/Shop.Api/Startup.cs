@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -8,10 +7,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Shop.Core.DTO;
 using Shop.Core.Interfaces;
 using Shop.Core.Interfaces.Repositories;
 using Shop.Core.Interfaces.Services;
 using Shop.Infrastructure;
+using Shop.Infrastructure.Auth;
 using Shop.Infrastructure.Data.Contexts;
 using Shop.Infrastructure.Data.Identity;
 using Shop.Infrastructure.Data.Repositories;
@@ -49,6 +50,17 @@ namespace Shop.Api
            .AddEntityFrameworkStores<ApplicationDbContext>()
            .AddDefaultTokenProviders();
 
+            // Get options from app settings
+            var jwtOptions = Configuration.GetSection(nameof(JwtOptions));
+
+            // Configure JwtIssuerOptions
+            services.Configure<JwtOptions>(options =>
+            {
+                options.Issuer = jwtOptions[nameof(JwtOptions.Issuer)];
+                options.Key = jwtOptions[nameof(JwtOptions.Key)];
+                options.ValidForMinutes = int.Parse(jwtOptions[nameof(JwtOptions.ValidForMinutes)]);
+            });
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                .AddJwtBearer(options =>
                {
@@ -58,13 +70,11 @@ namespace Shop.Api
                        ValidateAudience = true,
                        ValidateLifetime = true,
                        ValidateIssuerSigningKey = true,
-                       ValidIssuer = Configuration["Jwt:Issuer"],
-                       ValidAudience = Configuration["Jwt:Issuer"],
-                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                       ValidIssuer = jwtOptions[nameof(JwtOptions.Issuer)],
+                       ValidAudience = jwtOptions[nameof(JwtOptions.Issuer)],
+                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions[nameof(JwtOptions.Key)]))
                    };
                });
-
-            services.AddAutoMapper(typeof(Startup));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -73,6 +83,8 @@ namespace Shop.Api
 
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            services.AddScoped<IJwtFactory, JwtFactory>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }

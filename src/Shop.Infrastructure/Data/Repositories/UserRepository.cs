@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Shop.Core.DTO;
 using Shop.Core.DTO.Responses;
 using Shop.Core.Interfaces.Repositories;
 using Shop.Infrastructure.Data.Identity;
+using Shop.Infrastructure.Helpers;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,22 +12,21 @@ namespace Shop.Infrastructure.Data.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IMapper _mapper;
 
-        public UserRepository(UserManager<ApplicationUser> userManager, IMapper mapper)
+        public UserRepository(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
-            _mapper = mapper;
         }
 
         public async Task<bool> CheckPassword(User user, string password)
         {
-            return await _userManager.CheckPasswordAsync(_mapper.Map<ApplicationUser>(user), password);
+            return await _userManager.CheckPasswordAsync(Casting.UserToApplicationUser(user), password);
         }
 
         public async Task<CreateUserResponse> Create(User user, string password)
         {
-            var appUser = _mapper.Map<ApplicationUser>(user);
+            var appUser = Casting.UserToApplicationUser(user);
+
             var identityResult = await _userManager.CreateAsync(appUser, password);
             var success = identityResult.Succeeded;
 
@@ -42,7 +41,7 @@ namespace Shop.Infrastructure.Data.Repositories
                 return null;
             }
 
-            return _mapper.Map<User>(appUser);
+            return Casting.ApplicationUserToUser(appUser);
         }
     }
 }
