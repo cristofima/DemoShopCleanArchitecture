@@ -28,8 +28,14 @@ namespace Shop.Infrastructure.Services
             }
             else
             {
-                var tokenString = this._jwtFactory.GenerateEncodedToken(appUser.UserName, appUser.Email);
-                return new LoginResponse(tokenString, "Login exitoso", 200);
+                var checkPassword = await this._userRepository.CheckPassword(appUser, loginUser.Password);
+                if (checkPassword)
+                {
+                    var tokenString = this._jwtFactory.GenerateEncodedToken(appUser.UserName, appUser.Email);
+                    return new LoginResponse(tokenString, "Login exitoso", 200);
+                }
+
+                return new ErrorCRUDResponse("Clave incorrecta", 400);
             }
         }
 
