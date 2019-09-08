@@ -57,13 +57,13 @@ namespace Shop.Infrastructure
                 entity.Property(e => e.Tipo)
                     .IsRequired()
                     .HasColumnName("tipo")
-                    .HasMaxLength(50)
+                    .HasMaxLength(25)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Unidades)
                     .IsRequired()
                     .HasColumnName("unidades")
-                    .HasMaxLength(30)
+                    .HasMaxLength(15)
                     .IsUnicode(false);
             });
         }
