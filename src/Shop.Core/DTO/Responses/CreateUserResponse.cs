@@ -4,13 +4,14 @@ namespace Shop.Core.DTO.Responses
 {
     public class CreateUserResponse : BaseCRUDResponse
     {
-        public string Id { get; }
-
         public IEnumerable<Error> Errors { get; }
 
-        public CreateUserResponse(string id, string title, int status, IEnumerable<Error> errors = null) : base(title, status)
+        public CreateUserResponse(string title, int status, IEnumerable<Error> errors = null) : base(title, status)
         {
-            this.Id = id;
+            if (errors == null)
+            {
+                errors = new List<Error>();
+            }
             this.Errors = errors;
         }
 

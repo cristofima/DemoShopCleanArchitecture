@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Shop.Core.DTO.Requests;
 using Shop.Core.Interfaces.Services;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Shop.Api.Controllers
@@ -34,7 +36,6 @@ namespace Shop.Api.Controllers
             return Ok(result);
         }
 
-
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody]RegisterUserRequest user)
@@ -55,6 +56,27 @@ namespace Shop.Api.Controllers
                 {
                     return BadRequest(result);
                 }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("change_password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody]ChangePasswordRequest changePassword)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await this._authService.ChangePasswordAsync(userName, changePassword);
+            if (!result.IsSuccess())
+            {
+                return BadRequest(result);
             }
 
             return Ok(result);

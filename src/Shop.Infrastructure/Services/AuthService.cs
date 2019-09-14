@@ -19,12 +19,18 @@ namespace Shop.Infrastructure.Services
             _jwtFactory = jwtFactory;
         }
 
+        public async Task<BaseCRUDResponse> ChangePasswordAsync(string userName, ChangePasswordRequest changePassword)
+        {
+            var result = await this._userRepository.ChangePassword(userName, changePassword.OldPassword, changePassword.NewPassword);
+            return result;
+        }
+
         public async Task<BaseCRUDResponse> LoginAsync(LoginRequest loginUser)
         {
             var appUser = await this._userRepository.FindByName(loginUser.UserName);
             if (appUser == null)
             {
-                return new CreateUserResponse(string.Empty, "Usuario no se encuentra registrado", 404);
+                return new CreateUserResponse($"Usuario '{loginUser.UserName}' no se encuentra registrado", 404);
             }
             else
             {
@@ -32,7 +38,9 @@ namespace Shop.Infrastructure.Services
                 if (checkPassword)
                 {
                     var tokenString = this._jwtFactory.GenerateEncodedToken(appUser.UserName, appUser.Email);
-                    return new LoginResponse(tokenString, "Login exitoso", 200);
+                    var expireDate = this._jwtFactory.GetExpireDate(tokenString);
+
+                    return new LoginResponse(tokenString, "Login exitoso", 200, expireDate);
                 }
 
                 return new ErrorCRUDResponse("Clave incorrecta", 400);
@@ -44,7 +52,7 @@ namespace Shop.Infrastructure.Services
             var appUser = await this._userRepository.FindByName(registerUser.UserName);
             if (appUser != null)
             {
-                return new CreateUserResponse(string.Empty, "Usuario ya se encuentra registrado", 409);
+                return new CreateUserResponse("Usuario ya se encuentra registrado", 409);
             }
             else
             {

@@ -11,5 +11,7 @@ namespace Shop.Core.Interfaces.Repositories
         Task<User> FindByName(string userName);
 
         Task<bool> CheckPassword(User user, string password);
+
+        Task<BaseCRUDResponse> ChangePassword(string userName, string oldPassword, string newPassword);
     }
 }

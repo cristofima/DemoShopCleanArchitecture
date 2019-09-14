@@ -4,7 +4,7 @@
     {
         public dynamic Data { get; protected set; }
 
-        public SuccessCRUDResponse(string title, dynamic data) : base(title, 200)
+        public SuccessCRUDResponse(string title, dynamic data, int status = 200) : base(title, status)
         {
             this.Data = data;
         }

@@ -30,18 +30,37 @@ namespace Shop.Infrastructure.Data.Repositories
             var identityResult = await _userManager.CreateAsync(appUser, password);
             var success = identityResult.Succeeded;
 
-            return new CreateUserResponse(appUser.Id, success ? "Usuario creado" : "No se pudo crear el usuario", success ? 201 : 400, success ? null : identityResult.Errors.Select(e => new Error(e.Code, e.Description)));
+            return new CreateUserResponse(success ? "Usuario creado" : $"No se pudo crear el usuario {user.UserName}", success ? 201 : 400, success ? null : identityResult.Errors.Select(e => new Error(e.Code, e.Description)));
         }
 
         public async Task<User> FindByName(string userName)
         {
             var appUser = await _userManager.FindByNameAsync(userName);
+
             if (appUser == null)
             {
                 return null;
             }
 
             return Casting.ApplicationUserToUser(appUser);
+        }
+
+        public async Task<BaseCRUDResponse> ChangePassword(string userName, string oldPassword, string newPassword)
+        {
+            var appUser = await _userManager.FindByNameAsync(userName);
+
+            if (appUser == null)
+            {
+                return new ErrorCRUDResponse($"Usuario '{userName}' no se encuentra registrado", 404);
+            }
+
+            var result = await _userManager.ChangePasswordAsync(appUser, oldPassword, newPassword);
+            if (result.Succeeded)
+            {
+                return new SuccessCRUDResponse("Contraseña cambiada", null);
+            }
+
+            return new ErrorCRUDResponse("Error al cambiar la contraseña", 400, result.Errors.Select(x => new Error(x.Code, x.Description)));
         }
     }
 }
