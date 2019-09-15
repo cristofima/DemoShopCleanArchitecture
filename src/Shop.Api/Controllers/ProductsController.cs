@@ -11,6 +11,8 @@ namespace Shop.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;
@@ -20,14 +22,23 @@ namespace Shop.Api.Controllers
             _productService = productService;
         }
 
+        /// <summary>
+        /// Lista los productos
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(200)]
         public async Task<IEnumerable<Productos>> ListAsync()
         {
             var result = await _productService.FindAllAsync();
             return result;
         }
 
+        /// <summary>
+        /// Registra un producto
+        /// </summary>
         [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
         public async Task<IActionResult> PostAsync([FromBody] Productos product)
         {
             if (!ModelState.IsValid)
@@ -37,15 +48,16 @@ namespace Shop.Api.Controllers
 
             var result = await _productService.SaveAsync(product);
 
-            if (!result.IsSuccess())
-            {
-                return BadRequest(result as ErrorCRUDResponse);
-            }
-
-            return CreatedAtAction("Get", new { id = (result as SuccessCRUDResponse).Data.Codigo }, product);
+            return StatusCode(result.status, result);
         }
 
+        /// <summary>
+        /// Actualiza un producto
+        /// </summary>
         [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> PutAsync(int id, [FromBody] Productos product)
         {
             if (!ModelState.IsValid)
@@ -71,7 +83,12 @@ namespace Shop.Api.Controllers
             return Ok((result as SuccessCRUDResponse).Data);
         }
 
+        /// <summary>
+        /// Obtiene un producto
+        /// </summary>
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public ActionResult<Productos> Get(int id)
         {
             var result = _productService.FindById(id);
@@ -84,7 +101,12 @@ namespace Shop.Api.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Elimina un producto
+        /// </summary>
         [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> DeleteAsync(int id)
         {
             var result = await _productService.DeleteAsync(id);
