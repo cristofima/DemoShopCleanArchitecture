@@ -15,6 +15,7 @@ namespace Shop.Infrastructure
         }
 
         public virtual DbSet<Productos> Productos { get; set; }
+        public virtual DbSet<Log> Logs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -65,6 +66,57 @@ namespace Shop.Infrastructure
                     .HasColumnName("unidades")
                     .HasMaxLength(15)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<Log>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.RequestBody)
+                    .IsRequired(false)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ClientIp)
+                    .IsRequired()
+                    .HasColumnName("clientIp")
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Header)
+                    .IsRequired()
+                    .HasColumnName("header")
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Host)
+                    .IsRequired()
+                    .HasColumnName("host")
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Method)
+                    .IsRequired()
+                    .HasColumnName("method")
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Path)
+                    .IsRequired()
+                    .HasColumnName("path")
+                    .IsUnicode(false);
+
+                entity.Property(e => e.QueryString)
+                    .IsRequired()
+                    .HasColumnName("queryString")
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StatusCode)
+                    .IsRequired()
+                    .HasColumnName("statusCode")
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TransactionDate)
+                   .IsRequired()
+                   .HasColumnName("transactionDate")
+                   .IsUnicode(false);
             });
         }
     }

@@ -1,12 +1,34 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Shop.Infrastructure.Migrations.DemoShop
 {
-    public partial class InitialIdentity : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Logs",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    header = table.Column<string>(unicode: false, nullable: false),
+                    method = table.Column<string>(unicode: false, nullable: false),
+                    path = table.Column<string>(unicode: false, nullable: false),
+                    queryString = table.Column<string>(unicode: false, nullable: false),
+                    RequestBody = table.Column<string>(unicode: false, nullable: true),
+                    host = table.Column<string>(unicode: false, nullable: false),
+                    clientIp = table.Column<string>(unicode: false, nullable: false),
+                    statusCode = table.Column<int>(unicode: false, nullable: false),
+                    transactionDate = table.Column<DateTime>(unicode: false, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Logs", x => x.id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Productos",
                 columns: table => new
@@ -28,6 +50,9 @@ namespace Shop.Infrastructure.Migrations.DemoShop
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Logs");
+
             migrationBuilder.DropTable(
                 name: "Productos");
         }

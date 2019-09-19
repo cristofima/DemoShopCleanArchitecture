@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Shop.Api.Middlewares;
 using Shop.Core.DTO;
 using Shop.Core.Interfaces;
 using Shop.Core.Interfaces.Repositories;
@@ -84,9 +85,11 @@ namespace Shop.Api
 
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ILogRepository, LogRepository>();
 
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ILogService, LogService>();
 
             services.AddScoped<IJwtFactory, JwtFactory>();
 
@@ -116,6 +119,8 @@ namespace Shop.Api
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseMiddleware<RequestHandlerMiddleware>();
 
             app.UseSwagger();
 
